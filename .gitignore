@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.pyc
+
+# Local Test Outputs
+output_*.png
+test_image.png
+transparent_large_image.png
+create_test_image.py
+create_large_transparent_image.py
+
+# OS files
+.DS_Store
+Thumbs.db

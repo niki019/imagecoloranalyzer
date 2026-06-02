@@ -1,0 +1,25 @@
+Problem Statement: You are being asked to build a Color Percentage Analyzer — a tool that takes any image as input, scans
+every pixel, and outputs a bar/pie chart showing what percentage of the image belongs to each of 11
+standardized color categories.
+2.1 What the Tool Does — Step by Step
+• User uploads / provides any image (JPG, PNG, etc.)
+• Tool reads the image at pixel level — i.e., gets the RGB value (Red, Green, Blue, 0–255 each) of
+every single pixel
+• Each pixel's RGB value is classified into one of 11 color buckets
+• The tool counts how many pixels fall into each bucket
+• Output: a chart (bar or pie) showing the % share of each color
+2.2 The 11 Color Categories
+Every color in existence must be mapped to exactly one of these 11 categories. Similar shades are
+grouped together:
+Category Examples of What Maps Here
+White Snow white, cream, ivory, off-white, very light shades
+Black Jet black, very dark gray, near-black shades
+Gray All medium grays, silver, charcoal, ash
+Red Bright red, burgundy, maroon, crimson, dark red
+Orange Orange, tangerine, amber, burnt orange
+Yellow Yellow, light yellow, gold, lemon, mustard
+Green All greens — lime, forest, olive, teal-green, mint
+Blue Sky blue, navy, royal blue, cobalt, teal-blue
+Purple Violet, indigo, lavender, dark purple, mauve
+Pink Hot pink, light pink, rose, blush, fuchsia
+Brown Brown, tan, beige, chocolate, khaki, skin tones
