@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Percentage Analyzer - Interactive Presentation Prototype</title>
+    <!-- Premium Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            --panel-bg: rgba(30, 41, 59, 0.7);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            
+            /* Bucket Color Meanings mapping */
+            --color-white: #f8fafc;
+            --color-black: #0f172a;
+            --color-gray: #64748b;
+            --color-red: #ef4444;
+            --color-orange: #f97316;
+            --color-yellow: #eab308;
+            --color-green: #22c55e;
+            --color-blue: #3b82f6;
+            --color-purple: #a855f7;
+            --color-pink: #ec4899;
+            --color-brown: #78350f;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+            overflow-x: hidden;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            max-width: 800px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            font-weight: 400;
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 2rem;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        @media (max-width: 900px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .upload-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .drop-zone {
+            width: 100%;
+            height: 250px;
+            border: 2px dashed rgba(99, 102, 241, 0.4);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(99, 102, 241, 0.03);
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.08);
+            transform: scale(1.01);
+        }
+
+        .drop-zone svg {
+            width: 48px;
+            height: 48px;
+            fill: none;
+            stroke: var(--text-muted);
+            stroke-width: 2;
+            margin-bottom: 1rem;
+            transition: stroke 0.3s ease, transform 0.3s ease;
+        }
+
+        .drop-zone:hover svg {
+            stroke: var(--primary);
+            transform: translateY(-5px);
+        }
+
+        .drop-zone p {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .drop-zone span {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        .preview-container {
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            position: relative;
+            background: rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        #preview-img {
+            width: 100%;
+            height: auto;
+            max-height: 350px;
+            object-fit: contain;
+            display: block;
+        }
+
+        /* Results Display Card */
+        .results-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .placeholder-results {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            min-height: 300px;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        .placeholder-results svg {
+            width: 64px;
+            height: 64px;
+            stroke: rgba(255,255,255,0.1);
+            stroke-width: 1.5;
+            margin-bottom: 1rem;
+        }
+
+        .chart-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .bar-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .bar-label {
+            width: 80px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: right;
+            color: var(--text-main);
+        }
+
+        .bar-track {
+            flex-grow: 1;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(255,255,255,0.03);
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 12px;
+            width: 0%;
+            transition: width 1s cubic-bezier(0.1, 0.8, 0.3, 1);
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.15);
+        }
+
+        .bar-pct {
+            width: 50px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        /* Tables */
+        .stats-table-wrapper {
+            margin-top: 1.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 0.8rem 1.2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .bullet-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.5rem;
+            vertical-align: middle;
+        }
+
+        /* Loading Spinner */
+        .loader {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .analysis-loading {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Color Percentage Analyzer</h1>
+        <p>Upload any painting or image to scan its pixels and classify them into 11 standardized color categories in real-time.</p>
+    </header>
+
+    <div class="main-container">
+        <!-- Control Card -->
+        <div class="card upload-section">
+            <h2 style="font-size: 1.25rem; font-weight: 700; width: 100%; text-align: left;">Upload Image</h2>
+            
+            <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+                <svg viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                <p><span>Click to upload</span> or drag and drop</p>
+                <p style="font-size: 0.8rem; margin-top: 0.5rem;">Supports JPG, PNG, WEBP</p>
+            </div>
+            
+            <input type="file" id="file-input" accept="image/*">
+
+            <div class="preview-container" id="preview-container">
+                <img id="preview-img" src="" alt="Selected Preview">
+            </div>
+        </div>
+
+        <!-- Output Card -->
+        <div class="card">
+            <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1.5rem;">Analysis Results</h2>
+
+            <!-- Default Placeholder -->
+            <div class="placeholder-results" id="placeholder-results">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z" />
+                </svg>
+                <p>Upload an image to see color percentage distribution charts.</p>
+            </div>
+
+            <!-- Loading Spinner -->
+            <div class="analysis-loading" id="analysis-loading">
+                <div class="loader"></div>
+                <p>Scanning pixels and converting to HSV space...</p>
+            </div>
+
+            <!-- Main Interactive Results -->
+            <div class="results-section" id="results-section" style="display: none;">
+                <div class="chart-container" id="chart-container">
+                    <!-- Dynamic Bars will render here -->
+                </div>
+
+                <div class="stats-table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Percentage</th>
+                                <th>Pixel Count</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            <!-- Dynamic Table Rows will render here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Canvas used for pixel extraction (hidden) -->
+    <canvas id="canvas" style="display: none;"></canvas>
+
+    <script>
+        const fileInput = document.getElementById('file-input');
+        const dropZone = document.getElementById('drop-zone');
+        const previewContainer = document.getElementById('preview-container');
+        const previewImg = document.getElementById('preview-img');
+        
+        const placeholderResults = document.getElementById('placeholder-results');
+        const analysisLoading = document.getElementById('analysis-loading');
+        const resultsSection = document.getElementById('results-section');
+        
+        const chartContainer = document.getElementById('chart-container');
+        const tableBody = document.getElementById('table-body');
+        
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Theme Palette Hex Meanings
+        const colorPalette = {
+            "White": "#f8fafc",
+            "Black": "#0f172a",
+            "Gray": "#64748b",
+            "Red": "#ef4444",
+            "Orange": "#f97316",
+            "Yellow": "#eab308",
+            "Green": "#22c55e",
+            "Blue": "#3b82f6",
+            "Purple": "#a855f7",
+            "Pink": "#ec4899",
+            "Brown": "#78350f"
+        };
+
+        // Drag and drop event handlers
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, e => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, e => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+            }, false);
+        });
+
+        dropZone.addEventListener('drop', e => {
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                handleImageUpload(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', e => {
+            if (e.target.files.length > 0) {
+                handleImageUpload(e.target.files[0]);
+            }
+        });
+
+        function handleImageUpload(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('Please upload an image file (PNG, JPG, WEBP).');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                previewImg.src = event.target.result;
+                previewContainer.style.display = 'block';
+                
+                // Show loading
+                placeholderResults.style.display = 'none';
+                resultsSection.style.display = 'none';
+                analysisLoading.style.display = 'flex';
+
+                previewImg.onload = function() {
+                    // Perform Analysis
+                    analyzeImage(previewImg);
+                };
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // RGB -> HSV conversion
+        function rgbToHsv(r, g, b) {
+            r /= 255; g /= 255; b /= 255;
+            let max = Math.max(r, g, b), min = Math.min(r, g, b);
+            let h, s, v = max;
+            let d = max - min;
+            s = max === 0 ? 0 : d / max;
+            if (max === min) {
+                h = 0; // achromatic
+            } else {
+                switch (max) {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
+                }
+                h /= 6;
+            }
+            return { h: h * 360, s: s, v: v };
+        }
+
+        // Perceptual Classifier Tree matching Architecture spec
+        function classifyPixel(h, s, v) {
+            // 1. Achromatic checks
+            if (s < 0.08 && v >= 0.85) return "White";
+            if (v < 0.15) return "Black";
+            if (s < 0.15 && v >= 0.15 && v < 0.85) return "Gray";
+
+            // 2. Chromatic checks
+            if (h < 15 || h >= 345) return "Red";
+            if (h >= 15 && h < 35) {
+                return (v < 0.55) ? "Brown" : "Orange";
+            }
+            if (h >= 35 && h < 65) {
+                return (v < 0.50 || s < 0.30) ? "Brown" : "Yellow";
+            }
+            if (h >= 65 && h < 165) return "Green";
+            if (h >= 165 && h < 265) return "Blue";
+            if (h >= 265 && h < 290) return "Purple";
+            if (h >= 290 && h < 345) {
+                return (v >= 0.50 && s >= 0.20) ? "Pink" : "Brown";
+            }
+            return "Unknown";
+        }
+
+        function analyzeImage(imgElement) {
+            // Draw image to hidden canvas to extract pixels
+            // If image is larger than 800px on any side, downscale it for canvas scan performance
+            const maxDim = 800;
+            let w = imgElement.naturalWidth;
+            let h = imgElement.naturalHeight;
+            
+            if (w > maxDim || h > maxDim) {
+                const scale = Math.min(maxDim / w, maxDim / h);
+                w = Math.round(w * scale);
+                h = Math.round(h * scale);
+            }
+            
+            canvas.width = w;
+            canvas.height = h;
+            ctx.drawImage(imgElement, 0, 0, w, h);
+            
+            // Extract pixel array
+            const imgData = ctx.getImageData(0, 0, w, h);
+            const data = imgData.data;
+            const totalPixels = w * h;
+            
+            // Initialize count buckets
+            const counts = {
+                "White": 0, "Black": 0, "Gray": 0, "Red": 0, "Orange": 0,
+                "Yellow": 0, "Green": 0, "Blue": 0, "Purple": 0, "Pink": 0, "Brown": 0
+            };
+            
+            // Scan pixels (loop every 4 channels: R, G, B, A)
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i+1];
+                const b = data[i+2];
+                const a = data[i+3];
+                
+                // Transparency handling: skip transparent pixels (Alpha < 50)
+                if (a < 50) {
+                    // Composite over White (255, 255, 255)
+                    const blendedHsv = rgbToHsv(255, 255, 255);
+                    const category = classifyPixel(blendedHsv.h, blendedHsv.s, blendedHsv.v);
+                    counts[category]++;
+                    continue;
+                }
+                
+                const hsv = rgbToHsv(r, g, b);
+                const category = classifyPixel(hsv.h, hsv.s, hsv.v);
+                if (counts.hasOwnProperty(category)) {
+                    counts[category]++;
+                }
+            }
+            
+            // Render Results
+            displayResults(counts, totalPixels);
+        }
+
+        function displayResults(counts, totalPixels) {
+            // Sort categories by percentage descending
+            const sortedCategories = Object.keys(counts)
+                .map(key => ({ name: key, count: counts[key], percentage: (counts[key] / totalPixels) * 100 }))
+                .filter(item => item.count > 0) // Only show colors that are present
+                .sort((a, b) => b.percentage - a.percentage);
+            
+            // Clear prior results
+            chartContainer.innerHTML = '';
+            tableBody.innerHTML = '';
+            
+            // Populate Bars and Table
+            sortedCategories.forEach(item => {
+                const hexColor = colorPalette[item.name] || '#333';
+                
+                // 1. Render Bar Chart Row
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'bar-wrapper';
+                rowDiv.innerHTML = `
+                    <div class="bar-label">${item.name}</div>
+                    <div class="bar-track">
+                        <div class="bar-fill" style="width: 0%; background-color: ${hexColor}; border: ${item.name === 'White' ? '1px solid #cbd5e1' : 'none'}"></div>
+                    </div>
+                    <div class="bar-pct">${item.percentage.toFixed(1)}%</div>
+                `;
+                chartContainer.appendChild(rowDiv);
+                
+                // Trigger animation after append
+                setTimeout(() => {
+                    rowDiv.querySelector('.bar-fill').style.width = `${item.percentage}%`;
+                }, 100);
+
+                // 2. Render Table Row
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <span class="bullet-indicator" style="background-color: ${hexColor}; border: ${item.name === 'White' ? '1px solid #cbd5e1' : 'none'}"></span>
+                        <strong>${item.name}</strong>
+                    </td>
+                    <td>${item.percentage.toFixed(2)}%</td>
+                    <td style="color: var(--text-muted); font-family: monospace;">${item.count.toLocaleString()} px</td>
+                `;
+                tableBody.appendChild(tr);
+            });
+            
+            // Toggle Display
+            analysisLoading.style.display = 'none';
+            resultsSection.style.display = 'flex';
+        }
+    </script>
+</body>
+</html>
