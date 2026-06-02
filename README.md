@@ -1,5 +1,7 @@
 # Image Color Percentage Analyzer
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/niki019/imagecoloranalyzer/blob/main/color_analyzer_colab.ipynb)
+
 A high-performance, local-first tool designed to scan image pixels and classify their colors into **11 standardized color categories** using an HSV-based rule engine.
 
 ---
