@@ -1,0 +1,21 @@
+# Task Checklist: Color Percentage Analyzer
+
+- [x] Setup and verify environment dependencies
+- [x] Phase 1: MVP Core Logic & CLI
+  - [x] Create `color_analyzer.py` structure
+  - [x] Implement image loading and validation (Pillow)
+  - [x] Implement RGB-to-HSV conversion logic
+  - [x] Implement basic 10-color classification boundaries
+  - [x] Implement console reporter (sorted markdown table with text bar)
+- [x] Phase 2: Advanced Calibration & Visualization
+  - [x] Integrate refined 11-color boundaries (including Brown)
+  - [x] Develop Matplotlib horizontal bar chart generator
+  - [x] Style bars using corresponding color bucket hex codes
+  - [x] Save charts as PNG files
+- [x] Phase 3: Robustness & Performance Optimizations
+  - [x] Add automatic image downsampling (max 800px width/height for >1M pixels)
+  - [x] Add transparent PNG/WEBP flattening (alpha-compositing onto a white canvas)
+  - [x] Implement comprehensive exception handling
+- [x] Phase 4: Running Analysis & Final Submission Validation
+  - [x] Execute script on all test images
+  - [x] Verify output charts and console stats
